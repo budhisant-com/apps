@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Generator SMKN 12 Surabaya</title>
+    
+    <!-- 1. Memuat Tailwind CSS untuk tampilan -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Memuat React dan ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- 3. Memuat Babel untuk menerjemahkan kode React di browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Animasi halus untuk button */
+        .btn-animate:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Container Aplikasi -->
+    <div id="root"></div>
+
+    <!-- Script Utama Aplikasi -->
+    <script type="text/babel">
+        
+        // --- Bagian Ikon (SVG Manual agar tidak perlu install library) ---
+        const Icons = {
+            School: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m4 6 8-4 8 4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M18 5v17"/><path d="M6 5v17"/></svg>,
+            ClipboardList: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>,
+            BookOpen: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
+            Upload: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>,
+            FileText: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>,
+            X: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
+            RefreshCcw: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>,
+            Sparkles: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M9 3v4"/><path d="M3 5h4"/><path d="M3 9h4"/></svg>,
+            GraduationCap: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>,
+            CheckCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+            Copy: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>,
+            Download: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>,
+            MessageSquare: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+            ListChecks: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>,
+            Type: () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg>
+        };
+
+        // --- Data Aplikasi ---
+        const subjects = [
+            "Seni Pedalangan", "Seni Musik", "Seni Teater", "Seni Tari", "Seni Karawitan",
+            "Desain Komunikasi Visual (DKV)", "Animasi", "Pengembangan Perangkat Lunak & Gim (PPLG)",
+            "Desain Interior dan Teknik Furnitur", "Kriya Kreatif Batik dan Tekstil", "Kriya Kreatif Kayu",
+            "Kriya Kreatif Logam dan Perhiasan", "Kriya Kreatif Kulit dan Imitasi", "Seni Lukis",
+            "Teknik Pendingin dan Tata Udara",
+            "Agama Islam", "Bhs Indonesia", "Bhs Inggris", "Bhs Jawa", "Matematika",
+            "IPAS", "Informatika", "Sejarah", "Seni Budaya", "PPKn"
+        ];
+
+        const difficulties = ["Mudah (C1-C2)", "Sedang (C3-C4)", "Sulit (C5-C6)"];
+        const grades = ["Kelas X", "Kelas XI", "Kelas XII"];
+        const questionTypes = [
+            { id: "Pilihan Ganda", label: "Pilihan Ganda (Single Choice)" },
+            { id: "Pilihan Ganda Kompleks", label: "Pilihan Ganda Kompleks (Multi Answer)" },
+            { id: "Jawaban Singkat", label: "Jawaban Singkat (Isian)" },
+            { id: "Benar Salah", label: "Benar atau Salah (True/False)" },
+        ];
+
+        // --- Komponen Utama ---
+        function App() {
+            const [formData, setFormData] = React.useState({
+                subject: subjects[0],
+                topic: "",
+                grade: "Kelas X",
+                difficulty: "Sedang (C3-C4)",
+                questionCount: 10,
+                questionType: "Pilihan Ganda",
+                includeAnswerKey: true,
+                includeExplanation: true
+            });
+
+            const [selectedFile, setSelectedFile] = React.useState(null);
+            const [generatedPrompt, setGeneratedPrompt] = React.useState("");
+            const [isCopied, setIsCopied] = React.useState(false);
+            const fileInputRef = React.useRef(null);
+
+            const handleInputChange = (e) => {
+                const { name, value, type, checked } = e.target;
+                setFormData(prev => ({
+                    ...prev,
+                    [name]: type === 'checkbox' ? checked : value
+                }));
+            };
+
+            const handleFileChange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    setSelectedFile(file);
+                }
+            };
+
+            const clearFile = () => {
+                setSelectedFile(null);
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                }
+            };
+
+            const getQuestionTypeInstruction = (type) => {
+                switch(type) {
+                case "Pilihan Ganda Kompleks":
+                    return "- Format Soal: Pilihan Ganda Kompleks.\n- Buatlah opsi jawaban (misal A-E) dimana terdapat LEBIH DARI SATU jawaban yang benar.\n- Instruksikan siswa untuk memilih semua jawaban yang benar.";
+                case "Jawaban Singkat":
+                    return "- Format Soal: Jawaban Singkat (Isian).\n- Buatlah pertanyaan yang membutuhkan jawaban pasti, spesifik, dan pendek (satu kata atau frasa singkat).\n- Jangan sertakan opsi pilihan ganda.";
+                case "Benar Salah":
+                    return "- Format Soal: Benar atau Salah.\n- Sajikan sebuah pernyataan terkait materi.\n- Minta siswa menentukan apakah pernyataan tersebut BENAR atau SALAH.";
+                default: // Pilihan Ganda
+                    return "- Format Soal: Pilihan Ganda Biasa (Single Choice).\n- Format Jawaban: 5 Opsi (A, B, C, D, E) dengan HANYA SATU jawaban yang benar.";
+                }
+            };
+
+            const generatePrompt = () => {
+                let materialInstruction = "";
+                
+                if (selectedFile) {
+                materialInstruction = `\nSUMBER MATERI UTAMA:\nSaya telah melampirkan file dokumen materi bernama "${selectedFile.name}". \n- Harap BACA dan PELAJARI seluruh isi file tersebut secara mendalam.\n- Gunakan konten di dalam file sebagai satusatunya acuan atau acuan utama dalam membuat soal.\n- Pastikan soal tidak melenceng dari materi yang ada di file.`;
+                }
+
+                const typeInstruction = getQuestionTypeInstruction(formData.questionType);
+
+                const promptText = `Bertindaklah sebagai Guru Profesional dan Ahli Kurikulum di SMKN 12 Surabaya untuk mata pelajaran ${formData.subject}.
+
+Tugas Anda adalah membuat soal Latihan untuk siswa.${materialInstruction}
+
+Detail Spesifikasi:
+- Mata Pelajaran: ${formData.subject}
+- Jenjang: SMK ${formData.grade}
+- Topik/Materi: ${formData.topic} ${selectedFile ? `(Sesuai File Upload)` : ''}
+- Jumlah Soal: ${formData.questionCount} butir
+- Tingkat Kesulitan: ${formData.difficulty} (Berdasarkan Taksonomi Bloom)
+${typeInstruction}
+
+Instruksi Khusus:
+1. Pastikan soal relevan dengan kompetensi keahlian/jurusan.
+2. Hindari pertanyaan yang ambigu.
+3. Gunakan bahasa Indonesia yang baku dan mudah dipahami siswa SMK.
+4. ${formData.subject === 'Bhs Jawa' ? 'Gunakan Bahasa Jawa ragam krama/ngoko sesuai konteks soal.' : ''}
+5. ${formData.subject === 'Seni Pedalangan' || formData.subject === 'Seni Karawitan' ? 'Sertakan istilah-istilah teknis tradisi yang tepat.' : ''}
+
+Format Output yang diminta:
+Tampilkan soal satu per satu dengan nomor urut yang jelas.
+${formData.includeAnswerKey ? '- Sertakan Kunci Jawaban Lengkap di bagian paling akhir (Pisahkan dari soal).' : ''}
+${formData.includeExplanation ? '- Sertakan Pembahasan singkat untuk setiap jawaban.' : ''}
+
+Silakan analisis materi (jika ada file) dan mulai buat soalnya sekarang.`;
+
+                setGeneratedPrompt(promptText);
+                setIsCopied(false);
+            };
+
+            const copyToClipboard = () => {
+                const textArea = document.createElement("textarea");
+                textArea.value = generatedPrompt;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    setIsCopied(true);
+                    setTimeout(() => setIsCopied(false), 2000);
+                } catch (err) {
+                    console.error('Failed to copy', err);
+                    alert('Gagal menyalin. Silakan copy secara manual.');
+                }
+                document.body.removeChild(textArea);
+            };
+
+            const handleDownloadDoc = () => {
+                const formattedContent = generatedPrompt.replace(/\n/g, "<br/>");
+                const preHtml = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Export to Word</title></head><body>";
+                const postHtml = "</body></html>";
+                const html = preHtml + "<div style='font-family: Arial, sans-serif; line-height: 1.5;'>" + formattedContent + "</div>" + postHtml;
+
+                const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+                const url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(html);
+                
+                // Create download link element
+                const downloadLink = document.createElement("a");
+                document.body.appendChild(downloadLink);
+
+                if (navigator.msSaveOrOpenBlob) {
+                    navigator.msSaveOrOpenBlob(blob, `Prompt_Soal_${formData.subject}.doc`);
+                } else {
+                    downloadLink.href = url;
+                    downloadLink.download = `Prompt_Soal_${formData.subject.replace(/\s+/g, '_')}.doc`;
+                    downloadLink.click();
+                }
+                document.body.removeChild(downloadLink);
+            };
+
+            const openAIWindow = (url, title) => {
+                const width = 1000;
+                const height = 800;
+                const left = (window.screen.width - width) / 2;
+                const top = (window.screen.height - height) / 2;
+                window.open(url, title, `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`);
+            };
+
+            const resetForm = () => {
+                setFormData({
+                    subject: subjects[0],
+                    topic: "",
+                    grade: "Kelas X",
+                    difficulty: "Sedang (C3-C4)",
+                    questionCount: 10,
+                    questionType: "Pilihan Ganda",
+                    includeAnswerKey: true,
+                    includeExplanation: true
+                });
+                setSelectedFile(null);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+                setGeneratedPrompt("");
+                setIsCopied(false);
+            };
+
+            // --- Render UI ---
+            return (
+                <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-10 flex flex-col">
+                    {/* Header */}
+                    <header className="bg-gradient-to-r from-blue-800 to-indigo-900 text-white p-6 shadow-lg">
+                        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-white/10 p-2 rounded-lg shadow-inner">
+                                    <Icons.School />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl font-bold tracking-tight">Prompt Generator Soal</h1>
+                                    <p className="text-blue-200 text-sm">Khusus Guru SMKN 12 Surabaya (Siro Boyo)</p>
+                                </div>
+                            </div>
+                            <div className="hidden md:block text-right text-xs text-blue-300">
+                                <p>Seni, Budaya, & Teknologi</p>
+                                <p className="font-semibold">Jatim Cerdas</p>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-5xl mx-auto w-full p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 flex-grow">
+                        {/* Kiri: Form Input */}
+                        <div className="space-y-6">
+                            <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+                                <div className="flex items-center gap-2 mb-6 text-blue-800 border-b pb-4">
+                                    <div className="w-5 h-5"><Icons.ClipboardList /></div>
+                                    <h2 className="font-semibold text-lg">Konfigurasi Soal</h2>
+                                </div>
+
+                                <div className="space-y-4">
+                                    {/* Mapel */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Mata Pelajaran</label>
+                                        <div className="relative">
+                                            <select name="subject" value={formData.subject} onChange={handleInputChange} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white appearance-none pr-10 hover:border-blue-400 transition-colors">
+                                                {subjects.map((sub, idx) => <option key={idx} value={sub}>{sub}</option>)}
+                                            </select>
+                                            <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-slate-500"><div className="w-4 h-4"><Icons.BookOpen /></div></div>
+                                        </div>
+                                    </div>
+
+                                    {/* Topik */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Topik / Materi Spesifik</label>
+                                        <input type="text" name="topic" value={formData.topic} onChange={handleInputChange} placeholder="Contoh: Wayang Kulit Purwa, Algoritma Dasar" className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 hover:border-blue-400 transition-colors" />
+                                    </div>
+
+                                    {/* Jenis Soal */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Jenis Soal</label>
+                                        <select name="questionType" value={formData.questionType} onChange={handleInputChange} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-blue-50 font-medium text-blue-900">
+                                            {questionTypes.map(type => <option key={type.id} value={type.id}>{type.label}</option>)}
+                                        </select>
+                                    </div>
+
+                                    {/* Upload */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Upload Materi (Opsional)</label>
+                                        <div className={`border-2 border-dashed rounded-lg p-4 transition-all ${selectedFile ? 'border-emerald-400 bg-emerald-50' : 'border-slate-300 hover:border-blue-400 bg-slate-50'}`}>
+                                            {!selectedFile ? (
+                                                <div className="flex flex-col items-center justify-center cursor-pointer text-center group" onClick={() => fileInputRef.current.click()}>
+                                                    <div className="w-8 h-8 text-slate-400 mb-2 group-hover:text-blue-500 transition-colors"><Icons.Upload /></div>
+                                                    <p className="text-sm font-medium text-slate-600 group-hover:text-blue-600">Klik untuk upload file materi</p>
+                                                    <p className="text-xs text-slate-400 mt-1">.pdf, .doc, .ppt</p>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3 overflow-hidden">
+                                                        <div className="bg-emerald-100 p-2 rounded"><div className="w-6 h-6 text-emerald-600"><Icons.FileText /></div></div>
+                                                        <div className="min-w-0">
+                                                            <p className="text-sm font-medium text-slate-700 truncate">{selectedFile.name}</p>
+                                                            <p className="text-xs text-emerald-600">File terlampir</p>
+                                                        </div>
+                                                    </div>
+                                                    <button onClick={clearFile} className="text-slate-400 hover:text-red-500 p-1 btn-animate"><div className="w-5 h-5"><Icons.X /></div></button>
+                                                </div>
+                                            )}
+                                            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".pdf,.doc,.docx,.ppt,.pptx" className="hidden" />
+                                        </div>
+                                    </div>
+
+                                    {/* Grade & Difficulty */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">Jenjang Kelas</label>
+                                            <select name="grade" value={formData.grade} onChange={handleInputChange} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                                {grades.map(g => <option key={g} value={g}>{g}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">Tingkat Kesulitan</label>
+                                            <select name="difficulty" value={formData.difficulty} onChange={handleInputChange} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                                {difficulties.map(d => <option key={d} value={d}>{d}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Jumlah Soal */}
+                                    <div>
+                                        <div className="flex justify-between items-center mb-1">
+                                            <label className="block text-sm font-medium text-slate-700">Jumlah Soal</label>
+                                            <span className="font-bold text-blue-600 text-sm bg-blue-100 px-2 py-0.5 rounded">{formData.questionCount}</span>
+                                        </div>
+                                        <input type="range" name="questionCount" min="1" max="50" value={formData.questionCount} onChange={handleInputChange} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                                    </div>
+
+                                    {/* Checkboxes */}
+                                    <div className="flex gap-6 pt-2">
+                                        <label className="flex items-center gap-2 cursor-pointer select-none">
+                                            <input type="checkbox" name="includeAnswerKey" checked={formData.includeAnswerKey} onChange={handleInputChange} className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" />
+                                            <span className="text-sm text-slate-700">Kunci Jawaban</span>
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer select-none">
+                                            <input type="checkbox" name="includeExplanation" checked={formData.includeExplanation} onChange={handleInputChange} className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500" />
+                                            <span className="text-sm text-slate-700">Pembahasan</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="mt-8 flex gap-3">
+                                    <button onClick={resetForm} className="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium transition-colors flex items-center gap-2 btn-animate">
+                                        <div className="w-4 h-4"><Icons.RefreshCcw /></div> Reset
+                                    </button>
+                                    <button onClick={generatePrompt} disabled={!formData.topic && !selectedFile} className={`btn-animate flex-1 px-4 py-2 rounded-lg font-bold text-white shadow-md transition-all flex items-center justify-center gap-2 ${(!formData.topic && !selectedFile) ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg'}`}>
+                                        <div className="w-5 h-5"><Icons.Sparkles /></div> Buat Prompt Soal
+                                    </button>
+                                </div>
+                                {(!formData.topic && !selectedFile) && <p className="text-xs text-red-500 mt-2 text-center animate-pulse">*Mohon isi Topik atau Upload File Materi</p>}
+                            </div>
+                        </div>
+
+                        {/* Kanan: Output */}
+                        <div className="space-y-6">
+                            <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6 h-full flex flex-col">
+                                <div className="flex items-center justify-between mb-4 border-b pb-4">
+                                    <div className="flex items-center gap-2 text-emerald-700">
+                                        <div className="w-6 h-6"><Icons.GraduationCap /></div>
+                                        <h2 className="font-semibold text-lg">Hasil Generator</h2>
+                                    </div>
+                                    {generatedPrompt && <span className="text-xs font-medium px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full animate-pulse">Siap Disalin</span>}
+                                </div>
+
+                                <div className="flex-1 relative min-h-[300px] bg-slate-50 rounded-lg border border-slate-200 overflow-hidden">
+                                    {generatedPrompt ? (
+                                        <textarea className="w-full h-full p-4 bg-transparent resize-none focus:outline-none text-slate-700 text-sm font-mono leading-relaxed" value={generatedPrompt} readOnly />
+                                    ) : (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 p-8 text-center">
+                                            <div className="w-16 h-16 mb-4 text-slate-200"><Icons.Sparkles /></div>
+                                            <p className="font-medium">Hasil prompt akan muncul di sini.</p>
+                                            <p className="text-xs mt-2 text-slate-300">Konfigurasikan soal di panel kiri lalu klik tombol.</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {generatedPrompt && (
+                                    <div className="mt-4 space-y-3">
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button onClick={copyToClipboard} className={`btn-animate py-3 px-4 rounded-lg font-bold transition-all flex items-center justify-center gap-2 ${isCopied ? 'bg-emerald-500 text-white shadow-emerald-200' : 'bg-slate-800 text-white hover:bg-slate-900 shadow-lg'}`}>
+                                                {isCopied ? <><div className="w-4 h-4"><Icons.CheckCircle /></div> Disalin!</> : <><div className="w-4 h-4"><Icons.Copy /></div> Salin Teks</>}
+                                            </button>
+                                            <button onClick={handleDownloadDoc} className="btn-animate py-3 px-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg font-bold hover:bg-blue-100 transition-all flex items-center justify-center gap-2">
+                                                <div className="w-4 h-4"><Icons.Download /></div> Download Doc
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="border-t border-slate-100 my-4"></div>
+
+                                        <p className="text-xs text-slate-500 text-center mb-2">Lanjutkan ke AI favorit Anda:</p>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button onClick={() => openAIWindow('https://gemini.google.com/app', 'GeminiWindow')} className="btn-animate flex items-center justify-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200 text-sm font-medium">
+                                                <div className="w-4 h-4"><Icons.Sparkles /></div> Buka Gemini
+                                            </button>
+                                            <button onClick={() => openAIWindow('https://chatgpt.com/', 'ChatGPTWindow')} className="btn-animate flex items-center justify-center gap-2 px-4 py-2 bg-teal-50 text-teal-700 rounded-lg hover:bg-teal-100 transition-colors border border-teal-200 text-sm font-medium">
+                                                <div className="w-4 h-4"><Icons.MessageSquare /></div> Buka ChatGPT
+                                            </button>
+                                        </div>
+                                        {selectedFile && (
+                                            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-800 flex gap-2 items-start">
+                                                <span className="font-bold">⚠️ PENTING:</span>
+                                                <span>Jangan lupa <b>UPLOAD ULANG</b> file dokumen ({selectedFile.name}) di dalam chat AI nantinya.</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </main>
+                    <footer className="max-w-5xl mx-auto p-6 text-center text-slate-400 text-sm border-t border-slate-100 w-full mt-auto">
+                        <p>&copy; {new Date().getFullYear()} Dibuat khusus untuk SMKN 12 Surabaya oleh @budhisant</p>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
